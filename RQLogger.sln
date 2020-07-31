@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30323.103
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RQLogger", "RQLogger.csproj", "{153F1E2F-4847-4598-BBF2-C58A6A57A803}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{153F1E2F-4847-4598-BBF2-C58A6A57A803}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{153F1E2F-4847-4598-BBF2-C58A6A57A803}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{153F1E2F-4847-4598-BBF2-C58A6A57A803}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{153F1E2F-4847-4598-BBF2-C58A6A57A803}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{153F1E2F-4847-4598-BBF2-C58A6A57A803}.Release|Any CPU.Build.0 = Release|Any CPU
+		{153F1E2F-4847-4598-BBF2-C58A6A57A803}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8312D9C4-2D99-4EB5-BD5A-FF6935149C8E}
+	EndGlobalSection
+EndGlobal
