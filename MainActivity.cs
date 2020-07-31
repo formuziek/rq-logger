@@ -36,36 +36,8 @@
 
         private void OnToggleClick(object sender, EventArgs eventArgs)
         {
-            // Deal with location permissions.
-            _locationPermitted = ContextCompat.CheckSelfPermission(this, Manifest.Permission.AccessFineLocation) == Android.Content.PM.Permission.Granted;
-            if (!_locationPermitted)
-            {
-                var requiredPermissions = new string[] { Manifest.Permission.AccessFineLocation };
-                ActivityCompat.RequestPermissions(this, requiredPermissions, LOCATION_PERMISSIONS_REQUEST);
-            }
-
-            // Deal with foreground service permissions.
-            _foregroundServicePermitted = ContextCompat.CheckSelfPermission(this, Manifest.Permission.ForegroundService) == Android.Content.PM.Permission.Granted;
-            if (!_foregroundServicePermitted)
-            {
-                var requiredPermissions = new string[] { Manifest.Permission.ForegroundService };
-                ActivityCompat.RequestPermissions(this, requiredPermissions, FOREGROUND_SERVICE_PERMISSIONS_REQUEST);
-            }
-
-            _externalStoragePermitted = ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) == Android.Content.PM.Permission.Granted
-                && ContextCompat.CheckSelfPermission(this, Manifest.Permission.WriteExternalStorage) == Android.Content.PM.Permission.Granted;
-            if (!_externalStoragePermitted)
-            {
-                var requiredPermissions = new string[] { Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage };
-                ActivityCompat.RequestPermissions(this, requiredPermissions, EXTERNAL_STORAGE_PERMISSIONS_REQUEST);
-            }
-
-
-
-            if (_locationPermitted && _foregroundServicePermitted)
-            {
-                this.ToggleLogging();
-            }
+            this.CheckPermissions();
+            this.ToggleLogging();
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
@@ -76,7 +48,6 @@
                 return;
             }
 
-            Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
             if (requestCode == LOCATION_PERMISSIONS_REQUEST && grantResults[0] == Android.Content.PM.Permission.Granted)
             {
                 _locationPermitted = true;
@@ -95,28 +66,74 @@
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
 
+        /// <summary>
+        /// Checks and requests permissions if necessary.
+        /// </summary>
+        private void CheckPermissions()
+        {
+            // Deal with location permissions.
+            _locationPermitted = ContextCompat.CheckSelfPermission(this, Manifest.Permission.AccessFineLocation) == Android.Content.PM.Permission.Granted;
+            if (!_locationPermitted)
+            {
+                var requiredPermissions = new string[] { Manifest.Permission.AccessFineLocation };
+                ActivityCompat.RequestPermissions(this, requiredPermissions, LOCATION_PERMISSIONS_REQUEST);
+            }
+
+            // Deal with foreground service permissions.
+            _foregroundServicePermitted = ContextCompat.CheckSelfPermission(this, Manifest.Permission.ForegroundService) == Android.Content.PM.Permission.Granted;
+            if (!_foregroundServicePermitted)
+            {
+                var requiredPermissions = new string[] { Manifest.Permission.ForegroundService };
+                ActivityCompat.RequestPermissions(this, requiredPermissions, FOREGROUND_SERVICE_PERMISSIONS_REQUEST);
+            }
+
+            // Deal with external storage access permissions.
+            _externalStoragePermitted = ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) == Android.Content.PM.Permission.Granted
+                && ContextCompat.CheckSelfPermission(this, Manifest.Permission.WriteExternalStorage) == Android.Content.PM.Permission.Granted;
+            if (!_externalStoragePermitted)
+            {
+                var requiredPermissions = new string[] { Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage };
+                ActivityCompat.RequestPermissions(this, requiredPermissions, EXTERNAL_STORAGE_PERMISSIONS_REQUEST);
+            }
+        }
+
+        /// <summary>
+        /// Toggles logging or rejects due to missing permissions.
+        /// </summary>
         private void ToggleLogging()
         {
             var intent = new Intent(Android.App.Application.Context, typeof(LoggerService));
-            string loggingStatus = string.Empty;
+            TextView loggingStatusTextView = FindViewById<TextView>(Resource.Id.loggingstatus);
+
+            if (!_locationPermitted || !_externalStoragePermitted || !_foregroundServicePermitted)
+            {
+                loggingStatusTextView.Text = "Logging not possible due to missing permissions.";
+                LoggingProvider.Log($@"Permissions status:
+Location            : {_locationPermitted}
+Foreground services : {_foregroundServicePermitted}
+External storage    : {_externalStoragePermitted}");
+
+                return;
+            }
 
             _isLoggingActive = !_isLoggingActive;
+
+            LoggingProvider.Log($"Logging is being toggled {(_isLoggingActive ? "on" : "off")}.");
+
             if (_isLoggingActive)
             {
                 StartForegroundService(intent);
-                loggingStatus = "Logging active";
+                loggingStatusTextView.Text = "Logging active";
 
-                System.Diagnostics.Debug.WriteLine("Started logger service");
+                LoggingProvider.Log("Started logger service");
             }
             else
             {
                 StopService(intent);
+                loggingStatusTextView.Text = string.Empty;
 
-                System.Diagnostics.Debug.WriteLine("Stopped logger service");
+                LoggingProvider.Log("Stopped logger service");
             }
-
-            TextView loggingStatusTextView = FindViewById<TextView>(Resource.Id.loggingstatus);
-            loggingStatusTextView.Text = loggingStatus;
         }
     }
 }

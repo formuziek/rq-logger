@@ -1,6 +1,5 @@
 ﻿namespace RQLogger
 {
-    using System;
     using System.Linq;
     using Android.App;
     using Android.Content;
@@ -8,8 +7,6 @@
     using Android.Locations;
     using Android.OS;
     using Android.Runtime;
-    using Android.Views;
-    using Java.Lang;
 
     /// <summary>
     /// Location & acceleration logger service.
@@ -44,7 +41,7 @@
             base.OnDestroy();
         }
 
-        public override StartCommandResult OnStartCommand(Intent intent, [GeneratedEnum] StartCommandFlags flags, int startId)
+        public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
             // Create notification channel & notification to properly start a foreground service.
             var notificationChannel = new NotificationChannel(LOGGER_NOTIFICATION_CHANNEL, LOGGER_NOTIFICATION_TITLE, NotificationImportance.High);
@@ -107,13 +104,14 @@
         /// <param name="location">Location update.</param>
         public void OnLocationChanged(Android.Locations.Location location)
         {
-            System.Diagnostics.Debug.WriteLine("Received location update");
+            LoggingProvider.Log("Received location update");
+
             _liveDataEntry.Latitude = location?.Latitude;
             _liveDataEntry.Longitude = location?.Longitude;
 
             this.AppendToLog();
 
-            System.Diagnostics.Debug.WriteLine($"Flushed data entry, Lon: {_liveDataEntry.Longitude}, Lat: {_liveDataEntry.Latitude}, Readings: {_liveDataEntry.AccelerometerReadings.Count}");
+            LoggingProvider.Log($"Flushed data entry, Lon: {_liveDataEntry.Longitude}, Lat: {_liveDataEntry.Latitude}, Readings: {_liveDataEntry.AccelerometerReadings.Count}");
 
             _liveDataEntry = new DataEntry();
         }
@@ -133,7 +131,6 @@
             var externalStorageLocation = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath;
             string path = System.IO.Path.Combine(externalStorageLocation, LOG_FILE);
             System.IO.File.AppendAllText(path, stringBuilder.ToString());
-            System.Diagnostics.Debug.Write(stringBuilder.ToString());
         }
 
         public void OnProviderDisabled(string provider)
@@ -146,12 +143,12 @@
             // throw new NotImplementedException();
         }
 
-        public void OnStatusChanged(string provider, [GeneratedEnum] Availability status, Bundle extras)
+        public void OnStatusChanged(string provider, Availability status, Bundle extras)
         {
             // throw new NotImplementedException();
         }
 
-        public void OnAccuracyChanged(Sensor sensor, [GeneratedEnum] SensorStatus accuracy)
+        public void OnAccuracyChanged(Sensor sensor, SensorStatus accuracy)
         {
             // throw new NotImplementedException();
         }
@@ -162,7 +159,7 @@
         /// <param name="e">Sensor event.</param>
         public void OnSensorChanged(SensorEvent e)
         {
-            System.Diagnostics.Debug.WriteLine("Received accelerometer update");
+            LoggingProvider.Log("Received accelerometer update");
             _liveDataEntry.AccelerometerReadings.Add(e.Values.Select(r => r).ToList());
         }
     }
