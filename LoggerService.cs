@@ -133,6 +133,7 @@
             var externalStorageLocation = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath;
             string path = System.IO.Path.Combine(externalStorageLocation, LOG_FILE);
             System.IO.File.AppendAllText(path, stringBuilder.ToString());
+            System.Diagnostics.Debug.Write(stringBuilder.ToString());
         }
 
         public void OnProviderDisabled(string provider)
@@ -162,7 +163,7 @@
         public void OnSensorChanged(SensorEvent e)
         {
             System.Diagnostics.Debug.WriteLine("Received accelerometer update");
-            _liveDataEntry.AccelerometerReadings.Add(e.Values);
+            _liveDataEntry.AccelerometerReadings.Add(e.Values.Select(r => r).ToList());
         }
     }
 }
