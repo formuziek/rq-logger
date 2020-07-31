@@ -130,7 +130,8 @@
                 stringBuilder.AppendLine($"ACCELE:{string.Join(";", accelerationEntry)}");
             }
 
-            string path = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), LOG_FILE);
+            var externalStorageLocation = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath;
+            string path = System.IO.Path.Combine(externalStorageLocation, LOG_FILE);
             System.IO.File.AppendAllText(path, stringBuilder.ToString());
         }
 

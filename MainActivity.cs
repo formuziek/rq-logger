@@ -16,9 +16,11 @@
     {
         private const int LOCATION_PERMISSIONS_REQUEST = 9121;
         private const int FOREGROUND_SERVICE_PERMISSIONS_REQUEST = 9122;
+        private const int EXTERNAL_STORAGE_PERMISSIONS_REQUEST = 9123;
 
         private bool _locationPermitted = false;
         private bool _foregroundServicePermitted = false;
+        private bool _externalStoragePermitted = false;
         private bool _isLoggingActive = false;
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -44,11 +46,21 @@
 
             // Deal with foreground service permissions.
             _foregroundServicePermitted = ContextCompat.CheckSelfPermission(this, Manifest.Permission.ForegroundService) == Android.Content.PM.Permission.Granted;
-            if (_foregroundServicePermitted)
+            if (!_foregroundServicePermitted)
             {
                 var requiredPermissions = new string[] { Manifest.Permission.ForegroundService };
                 ActivityCompat.RequestPermissions(this, requiredPermissions, FOREGROUND_SERVICE_PERMISSIONS_REQUEST);
             }
+
+            _externalStoragePermitted = ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) == Android.Content.PM.Permission.Granted
+                && ContextCompat.CheckSelfPermission(this, Manifest.Permission.WriteExternalStorage) == Android.Content.PM.Permission.Granted;
+            if (!_externalStoragePermitted)
+            {
+                var requiredPermissions = new string[] { Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage };
+                ActivityCompat.RequestPermissions(this, requiredPermissions, EXTERNAL_STORAGE_PERMISSIONS_REQUEST);
+            }
+
+
 
             if (_locationPermitted && _foregroundServicePermitted)
             {
@@ -58,6 +70,12 @@
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {
+            if (grantResults.Length == 0)
+            {
+                base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+                return;
+            }
+
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
             if (requestCode == LOCATION_PERMISSIONS_REQUEST && grantResults[0] == Android.Content.PM.Permission.Granted)
             {
@@ -67,6 +85,11 @@
             if (requestCode == FOREGROUND_SERVICE_PERMISSIONS_REQUEST && grantResults[0] == Android.Content.PM.Permission.Granted)
             {
                 _foregroundServicePermitted = true;
+            }
+
+            if (requestCode == EXTERNAL_STORAGE_PERMISSIONS_REQUEST && grantResults[0] == Android.Content.PM.Permission.Granted && grantResults[1] == Android.Content.PM.Permission.Granted)
+            {
+                _externalStoragePermitted = true;
             }
 
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
