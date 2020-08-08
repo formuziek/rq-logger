@@ -20,6 +20,22 @@
         /// <summary>
         /// Accelerometer vectors read between the previous location and the current location.
         /// </summary>
-        public List<IList<float>> AccelerometerReadings { get; set; } = new List<IList<float>>();
+        public List<SensorEntry> SensorValues { get; set; } = new List<SensorEntry>();
+    }
+
+    /// <summary>
+    /// Sensor entry.
+    /// </summary>
+    public class SensorEntry
+    {
+        /// <summary>
+        /// Type of sensor - 0 for accelerometer, 1 for rotation vector.
+        /// </summary>
+        public int Type { get; set; }
+
+        /// <summary>
+        /// Sensor values.
+        /// </summary>
+        public IList<float> Values { get; set; }
     }
 }
